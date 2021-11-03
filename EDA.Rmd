@@ -1,0 +1,258 @@
+---
+title: "Capston EDA Presentation"
+author: "Jiayue He, Haochen Liu, Xuefei Wang"
+date: "10/6/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r load, warning = FALSE, include=FALSE}
+
+# clean up & set default chunk options
+rm(list = ls())
+knitr::opts_chunk$set(echo = FALSE)
+
+# load packages
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mosaic)
+library(lubridate)
+library(data.table)
+library(plotly)
+library(dygraphs)
+library(corrplot)
+
+# inputs
+environment <- read.csv("environment.csv")
+sale <- read.csv("TOTALSA.csv")
+```
+
+```{r clean}
+# selections 
+year <- c('2018','2019','2020')
+environment1 <- filter(environment, Model.Year %in% year)
+
+model <- c('All')
+environment1 <- filter(environment1, ï..Manufacturer != model)
+
+months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01','2018-11-01','2018-12-01','2019-01-01','2019-02-01','2019-03-01','2019-04-01','2019-05-01','2019-06-01','2019-07-01','2019-08-01','2019-09-01','2019-10-01','2019-11-01','2019-12-01','2020-01-01','2020-02-01','2020-03-01','2020-04-01','2020-05-01','2020-06-01','2020-07-01','2020-08-01','2020-09-01','2020-10-01','2020-11-01','2020-12-01')
+sale1 <- filter(sale, DATE %in% months)
+sale1$date <- ymd(months)
+
+# rename variables to become more appropriate
+names(environment1)[names(environment1) == 'Model.Year'] <- 'Year'
+names(environment1)[names(environment1) == 'ï..Manufacturer'] <- 'Manufacturer'
+names(environment1)[names(environment1) == 'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
+names(environment1)[names(environment1) == 'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
+names(environment1)[names(environment1) == 'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
+names(environment1)[names(environment1) == 'Weight..lbs.'] <- 'Weight'
+names(environment1)[names(environment1) == 'Horsepower..HP.'] <- 'Horsepower'
+names(environment1)[names(environment1) == 'Footprint..sq..ft..'] <- 'Footprint'
+names(environment1)[names(environment1) == 'Fuel.Delivery...Gasoline.Direct.Injection..GDI.'] <- 'Fuel.Delivery.GDI'
+
+# select variables that can be used 
+environment1 <- 
+  environment1 %>%
+  select(Manufacturer, Year, X2.Cycle.MPG, Real.World.MPG, Real.World.MPG_City, Real.World.MPG_Hwy, Real.World.CO2, Real.World.CO2_City, Real.World.CO2_Hwy, Weight, Footprint, Horsepower, Fuel.Delivery.GDI)
+
+# change form of variables 
+environment1$Year <- as.factor(environment1$Year)
+environment1$X2.Cycle.MPG <- as.numeric(environment1$X2.Cycle.MPG)
+environment1$Real.World.MPG <- as.numeric(environment1$Real.World.MPG)
+environment1$Real.World.MPG_City <- as.numeric(environment1$Real.World.MPG_City)
+environment1$Real.World.MPG_Hwy <- as.numeric(environment1$Real.World.MPG_Hwy)
+environment1$Real.World.CO2 <- as.numeric(environment1$Real.World.CO2)
+environment1$Real.World.CO2_City <- as.numeric(environment1$Real.World.CO2_City)
+environment1$Real.World.CO2_Hwy <- as.numeric(environment1$Real.World.CO2_Hwy)
+environment1$Weight <- as.numeric(environment1$Weight)
+environment1$Footprint <- as.numeric(environment1$Footprint)
+environment1$Horsepower <- as.numeric(environment1$Horsepower)
+environment1$Fuel.Delivery.GDI <- as.numeric(environment1$Fuel.Delivery.GDI)
+
+sale1 <-
+  sale1 %>%
+  mutate(dates = seq(as.Date("2018-01-01",  format = "%Y-%m-%d"), length.out = 36, by = "month"))
+```
+
+
+```{r clean1}
+# environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0
+```
+
+```{r clean2}
+# environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
+
+```
+
+# Research Questions
+
+**Research question 1: How does COVID affect vehicle sales (automotive economy)?**
+ 
+**Research question 2: How does the performance of the automobile industry affect our environment before and after COVID?**
+
+# Variable
+```{r variable}
+variables <- read_excel("variables.xlsx")
+knitr::kable(variables, "simple", 
+             caption = "Variables Attributes",
+             align = "lccrr")
+```
+
+
+# EDA
+## Data Origins
+Sources 1: https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData
+
+The first source we used is provided by the U.S. Environment Protection Agency’s (EPA). EPA has collected data on every new light-duty vehicle model sold in the United States since 1975, either from testing performed by EPA at the National Vehicle Fuel and Emissions Laboratory in Ann Arbor, Michigan, or directly from manufacturers using official EPA test procedures. These data are collected to support several important national programs, including EPA criteria pollutant and GHG standards, the U.S. Department of Transportation’s National Highway Traffic Safety Administration (NHTSA) Corporate Average Fuel Economy (CAFE) standards, and vehicle Fuel Economy and Environment labels. Thus, this expansive data set allows EPA to provide a uniquely comprehensive analysis of the automotive industry over the last 45 years.
+
+Source 2: https://fred.stlouisfed.org/series/TOTALSA
+
+The second source we used is provided by the Federal Reserve Economic Data (FRED) and it is collected by the U.S. Bureau of Economic Analysis department. FRED is an online database consisting of hundreds of thousands of economic data time series from scores of national, international, public, and private sources. It combines data with a powerful mix of tools that help the user understand and interact with the data. FRED has contained many of the more popular figures reported by the Board of Governors, Bureau of Economic Analysis, Bureau of Labor Statistics, and Census-among others. 
+
+There are two missing values in this first dataset. It is the engine displacement value for Tesla. As we know, Tesla is not run by gas or oil, and it is reasonable that engine displacement is ) for Tesla. Therefore, we replace the missing value with 0 to better produce our models.
+
+## Tables
+```{r summary1}
+favstats(Real.World.MPG_City ~ Year, data = environment1) %>% 
+  knitr::kable(caption = "Summary Statistics for MPG by Year")
+```
+```{r summart2}
+favstats(X2.Cycle.MPG ~ Manufacturer, data = environment1) %>% 
+  knitr::kable(caption = "Summary Statistics for 2-Cycle by Manufacturer")
+```
+
+\pagebreak
+## Plots
+```{r plot1, fig.height=5, fig.width=8}
+environment1 %>%
+  ggplot(aes(x = Year, y = Real.World.CO2_City)) + 
+  geom_boxplot(aes(color = Year)) + 
+  xlab("Year") + 
+  ylab("CO2_City")
+```
+```{r plot2}
+
+
+ggplot(sale1, aes(x = dates, y = TOTALSA)) + 
+  geom_line() + 
+  scale_x_date(date_labels = "%m-%Y") 
+```
+```{r correlation}
+env <- cor(environment1[3:13])
+corrplot(env, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
+```
+
+
+# R Script
+```{r ref.label= c('load', 'clean', 'clean1', 'clean2', 'variable','summary1', 'summary2', 'plot1', 'plot2', 'correlation'), echo=TRUE, eval=FALSE}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
