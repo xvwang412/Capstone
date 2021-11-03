@@ -77,7 +77,7 @@ sale1 <-
   sale1 %>%
   mutate(dates = seq(as.Date("2018-01-01",  format = "%Y-%m-%d"), length.out = 36, by = "month"))
 
-environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0
+environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0 
 environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 ```
 
