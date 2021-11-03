@@ -73,7 +73,7 @@ environment1$Footprint <- as.numeric(environment1$Footprint)
 environment1$Horsepower <- as.numeric(environment1$Horsepower)
 environment1$Fuel.Delivery.GDI <- as.numeric(environment1$Fuel.Delivery.GDI)
 
-sale1 <-
+sale1 <- 
   sale1 %>%
   mutate(dates = seq(as.Date("2018-01-01",  format = "%Y-%m-%d"), length.out = 36, by = "month"))
 
