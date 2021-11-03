@@ -38,6 +38,7 @@ environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
 environment1 <- filter(environment1, Manufacturer != model)
+#environment1 <- filter(environment1, i..Manufacturer != model)
 
 months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01','2018-11-01','2018-12-01','2019-01-01','2019-02-01','2019-03-01','2019-04-01','2019-05-01','2019-06-01','2019-07-01','2019-08-01','2019-09-01','2019-10-01','2019-11-01','2019-12-01','2020-01-01','2020-02-01','2020-03-01','2020-04-01','2020-05-01','2020-06-01','2020-07-01','2020-08-01','2020-09-01','2020-10-01','2020-11-01','2020-12-01')
 sale1 <- filter(sale, DATE %in% months)
@@ -53,7 +54,7 @@ names(environment1)[names(environment1) == 'Weight..lbs.'] <- 'Weight'
 names(environment1)[names(environment1) == 'Horsepower..HP.'] <- 'Horsepower'
 names(environment1)[names(environment1) == 'Footprint..sq..ft..'] <- 'Footprint'
 names(environment1)[names(environment1) == 'Fuel.Delivery...Gasoline.Direct.Injection..GDI.'] <- 'Fuel.Delivery.GDI'
-
+ 
 # select variables that can be used 
 environment1 <- 
   environment1 %>%
@@ -80,6 +81,16 @@ sale1 <-
 environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0 
 environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 ```
+
+#Tesla carbon emission
+```{r}
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2018"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2019"] <- 420
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2020"] <- 400
+
+environment1$Engine.Displacement[environment1$Manufacturer == "Tesla"] <- 0
+```
+
 
 # Research Questions
 
@@ -128,8 +139,6 @@ environment1 %>%
   ylab("CO2_City")
 ```
 ```{r plot2}
-
-
 ggplot(sale1, aes(x = dates, y = TOTALSA)) + 
   geom_line() + 
   scale_x_date(date_labels = "%m-%Y") 
@@ -144,7 +153,6 @@ corrplot(env, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
 ```{r ref.label= c('load', 'clean', 'clean1', 'clean2', 'variable','summary1', 'summary2', 'plot1', 'plot2', 'correlation'), echo=TRUE, eval=FALSE}
 
 ```
-
 
 
 
