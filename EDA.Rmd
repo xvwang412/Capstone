@@ -82,7 +82,7 @@ environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0
 environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 ```
 
-#Tesla carbon emission
+#Tesla carbon emission 
 ```{r}
 environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2018"] <- 400
 environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2019"] <- 420
