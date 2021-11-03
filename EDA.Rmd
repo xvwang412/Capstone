@@ -37,7 +37,7 @@ year <- c('2018','2019','2020')
 environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
-environment1 <- filter(environment1, ï..Manufacturer != model)
+environment1 <- filter(environment1, Manufacturer != model)
 
 months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01','2018-11-01','2018-12-01','2019-01-01','2019-02-01','2019-03-01','2019-04-01','2019-05-01','2019-06-01','2019-07-01','2019-08-01','2019-09-01','2019-10-01','2019-11-01','2019-12-01','2020-01-01','2020-02-01','2020-03-01','2020-04-01','2020-05-01','2020-06-01','2020-07-01','2020-08-01','2020-09-01','2020-10-01','2020-11-01','2020-12-01')
 sale1 <- filter(sale, DATE %in% months)
@@ -45,7 +45,7 @@ sale1$date <- ymd(months)
 
 # rename variables to become more appropriate
 names(environment1)[names(environment1) == 'Model.Year'] <- 'Year'
-names(environment1)[names(environment1) == 'ï..Manufacturer'] <- 'Manufacturer'
+#names(environment1)[names(environment1) == 'Manufacturer'] <- 'Manufacturer'
 names(environment1)[names(environment1) == 'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
 names(environment1)[names(environment1) == 'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
 names(environment1)[names(environment1) == 'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
@@ -57,7 +57,7 @@ names(environment1)[names(environment1) == 'Fuel.Delivery...Gasoline.Direct.Inje
 # select variables that can be used 
 environment1 <- 
   environment1 %>%
-  select(Manufacturer, Year, X2.Cycle.MPG, Real.World.MPG, Real.World.MPG_City, Real.World.MPG_Hwy, Real.World.CO2, Real.World.CO2_City, Real.World.CO2_Hwy, Weight, Footprint, Horsepower, Fuel.Delivery.GDI)
+  select(Manufacturer, Year, X2.Cycle.MPG, Real.World.MPG, Real.World.MPG_City, Real.World.MPG_Hwy, Real.World.CO2, Real.World.CO2_City, Real.World.CO2_Hwy, Weight, Footprint, Horsepower, Fuel.Delivery.GDI, Engine.Displacement)
 
 # change form of variables 
 environment1$Year <- as.factor(environment1$Year)
@@ -76,16 +76,9 @@ environment1$Fuel.Delivery.GDI <- as.numeric(environment1$Fuel.Delivery.GDI)
 sale1 <-
   sale1 %>%
   mutate(dates = seq(as.Date("2018-01-01",  format = "%Y-%m-%d"), length.out = 36, by = "month"))
-```
 
-
-```{r clean1}
-# environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0
-```
-
-```{r clean2}
-# environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
-
+environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0
+environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 ```
 
 # Research Questions
@@ -151,34 +144,6 @@ corrplot(env, type = "lower", order = "hclust", tl.col = "black", tl.srt = 45)
 ```{r ref.label= c('load', 'clean', 'clean1', 'clean2', 'variable','summary1', 'summary2', 'plot1', 'plot2', 'correlation'), echo=TRUE, eval=FALSE}
 
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
