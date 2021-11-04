@@ -3,7 +3,7 @@ title: "Modeling"
 output: html_notebook  
 --- 
 
-#Assign different country
+#Assign different country 
 ```{r}
 environment1$Country <- "all"
 

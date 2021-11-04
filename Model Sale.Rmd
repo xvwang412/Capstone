@@ -1,0 +1,86 @@
+---
+title: "Modling Sale"
+author: "Xuefei Wang"
+date: "11/3/2021"
+output: html_document 
+--- 
+
+```{r}
+# clean up & set default chunk options
+rm(list = ls())
+knitr::opts_chunk$set(echo = FALSE)
+
+# load packages
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mosaic)
+library(lubridate)
+library(data.table)
+library(plotly)
+library(dygraphs)
+library(corrplot)
+
+# inputs
+brandsale <- read_excel("TotalSalebyBrand.xlsx")
+```
+
+```{r}
+names(brandsale)[names(brandsale) == '2020Sales'] <- 'Sales2020'
+names(brandsale)[names(brandsale) == '2019Sales'] <- 'Sales2019'
+names(brandsale)[names(brandsale) == '2018Sales'] <- 'Sales2018'
+```
+
+# EDA
+
+```{r}
+favstats(Sales2020 ~ Brand, data = brandsale) %>% 
+  knitr::kable(caption = "Summary Statistics for Car Sales by Brand")
+```
+```{r}
+favstats(Sales2020 ~ Month, data = brandsale) %>% 
+  knitr::kable(caption = "Summary Statistics for Car Sales by Month")
+```
+```{r}
+brandsale <-
+  brandsale %>%
+  arrange(Month)
+brandsale$Month <- month.abb[brandsale$Month]
+```
+
+```{r}
+ggplot(brandsale, aes(x = Month, y = Sales2020/1000)) +
+  geom_boxplot() +
+  ylab("2020 Car Sales in 1000 Units") +
+  scale_x_discrete(limits = month.abb)
+```
+```{r}
+ggplot(brandsale, aes(x = Month, y = Sales2019/1000)) +
+  geom_boxplot() +
+  ylab("2019 Car Sales in 1000 Units") +
+  scale_x_discrete(limits = month.abb)
+```
+
+```{r}
+ggplot(brandsale, aes(x = Month, y = Sales2018/1000)) +
+  geom_boxplot() +
+  ylab("2018 Car Sales in 1000 Units") +
+  scale_x_discrete(limits = month.abb)
+```
+
+```{r}
+fit1 <- lm(Sales2020 ~ Sales2019 + Brand + Month, data = brandsale)
+slm1 <- step(fit1, direction = "backward")
+summary(slm1)
+```
+```{r}
+mplot(slm1, which = 1)
+mplot(slm1, which = 2)
+summary(fit1)
+```
+```{r}
+
+```
+
+
