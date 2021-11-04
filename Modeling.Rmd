@@ -1,6 +1,6 @@
 ---
 title: "Modeling"
-output: html_notebook 
+output: html_notebook  
 --- 
 
 #Assign different country

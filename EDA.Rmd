@@ -9,7 +9,7 @@ output:
 ---
 
 ```{r load, warning = FALSE, include=FALSE}
-
+ 
 # clean up & set default chunk options
 rm(list = ls())
 knitr::opts_chunk$set(echo = FALSE)
@@ -29,7 +29,10 @@ library(corrplot)
 # inputs
 environment <- read.csv("environment.csv")
 sale <- read.csv("TOTALSA.csv")
+brandsale <- read_excel("TotalSalebyBrand.xlsx")
 ```
+
+
 
 ```{r clean}
 # selections 
@@ -37,8 +40,12 @@ year <- c('2018','2019','2020')
 environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
+
 environment1 <- filter(environment1, Manufacturer != model)
 #environment1 <- filter(environment1, i..Manufacturer != model)
+
+#environment1 <- filter(environment1, Manufacturer != model)
+environment1 <- filter(environment1, ï..Manufacturer != model)
 
 months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01','2018-11-01','2018-12-01','2019-01-01','2019-02-01','2019-03-01','2019-04-01','2019-05-01','2019-06-01','2019-07-01','2019-08-01','2019-09-01','2019-10-01','2019-11-01','2019-12-01','2020-01-01','2020-02-01','2020-03-01','2020-04-01','2020-05-01','2020-06-01','2020-07-01','2020-08-01','2020-09-01','2020-10-01','2020-11-01','2020-12-01')
 sale1 <- filter(sale, DATE %in% months)
@@ -46,7 +53,7 @@ sale1$date <- ymd(months)
 
 # rename variables to become more appropriate
 names(environment1)[names(environment1) == 'Model.Year'] <- 'Year'
-#names(environment1)[names(environment1) == 'Manufacturer'] <- 'Manufacturer'
+names(environment1)[names(environment1) == 'ï..Manufacturer'] <- 'Manufacturer'
 names(environment1)[names(environment1) == 'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
 names(environment1)[names(environment1) == 'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
 names(environment1)[names(environment1) == 'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
