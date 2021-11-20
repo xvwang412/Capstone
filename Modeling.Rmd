@@ -4,6 +4,86 @@ output: html_notebook
 --- 
 
 #Assign different country 
+```{r load, warning = FALSE, include=FALSE}
+ 
+# clean up & set default chunk options
+rm(list = ls())
+knitr::opts_chunk$set(echo = FALSE)
+
+# load packages
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mosaic)
+library(lubridate)
+library(data.table)
+library(plotly)
+library(dygraphs)
+library(corrplot)
+
+# inputs
+environment <- read.csv("environment.csv")
+sale <- read.csv("TOTALSA.csv")
+brandsale <- read_excel("TotalSalebyBrand.xlsx")
+```
+
+
+
+```{r clean}
+# selections 
+year <- c('2018','2019','2020')
+environment1 <- filter(environment, Model.Year %in% year)
+
+model <- c('All')
+
+environment1 <- filter(environment1, Manufacturer != model)
+#environment1 <- filter(environment1, i..Manufacturer != model)
+
+#environment1 <- filter(environment1, Manufacturer != model)
+environment1 <- filter(environment1, Manufacturer != model)
+
+months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01','2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01','2018-11-01','2018-12-01','2019-01-01','2019-02-01','2019-03-01','2019-04-01','2019-05-01','2019-06-01','2019-07-01','2019-08-01','2019-09-01','2019-10-01','2019-11-01','2019-12-01','2020-01-01','2020-02-01','2020-03-01','2020-04-01','2020-05-01','2020-06-01','2020-07-01','2020-08-01','2020-09-01','2020-10-01','2020-11-01','2020-12-01')
+sale1 <- filter(sale, DATE %in% months)
+sale1$date <- ymd(months)
+
+# rename variables to become more appropriate
+names(environment1)[names(environment1) == 'Model.Year'] <- 'Year'
+names(environment1)[names(environment1) == 'Manufacturer'] <- 'Manufacturer'
+names(environment1)[names(environment1) == 'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
+names(environment1)[names(environment1) == 'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
+names(environment1)[names(environment1) == 'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
+names(environment1)[names(environment1) == 'Weight..lbs.'] <- 'Weight'
+names(environment1)[names(environment1) == 'Horsepower..HP.'] <- 'Horsepower'
+names(environment1)[names(environment1) == 'Footprint..sq..ft..'] <- 'Footprint'
+names(environment1)[names(environment1) == 'Fuel.Delivery...Gasoline.Direct.Injection..GDI.'] <- 'Fuel.Delivery.GDI'
+ 
+# select variables that can be used 
+environment1 <- 
+  environment1 %>%
+  select(Manufacturer, Year, X2.Cycle.MPG, Real.World.MPG, Real.World.MPG_City, Real.World.MPG_Hwy, Real.World.CO2, Real.World.CO2_City, Real.World.CO2_Hwy, Weight, Footprint, Horsepower, Fuel.Delivery.GDI, Engine.Displacement)
+
+# change form of variables 
+environment1$Year <- as.factor(environment1$Year)
+environment1$X2.Cycle.MPG <- as.numeric(environment1$X2.Cycle.MPG)
+environment1$Real.World.MPG <- as.numeric(environment1$Real.World.MPG)
+environment1$Real.World.MPG_City <- as.numeric(environment1$Real.World.MPG_City)
+environment1$Real.World.MPG_Hwy <- as.numeric(environment1$Real.World.MPG_Hwy)
+environment1$Real.World.CO2 <- as.numeric(environment1$Real.World.CO2)
+environment1$Real.World.CO2_City <- as.numeric(environment1$Real.World.CO2_City)
+environment1$Real.World.CO2_Hwy <- as.numeric(environment1$Real.World.CO2_Hwy)
+environment1$Weight <- as.numeric(environment1$Weight)
+environment1$Footprint <- as.numeric(environment1$Footprint)
+environment1$Horsepower <- as.numeric(environment1$Horsepower)
+environment1$Fuel.Delivery.GDI <- as.numeric(environment1$Fuel.Delivery.GDI)
+
+sale1 <- 
+  sale1 %>%
+  mutate(dates = seq(as.Date("2018-01-01",  format = "%Y-%m-%d"), length.out = 36, by = "month"))
+
+environment1$Engine.Displacement[is.na(environment1$Engine.Displacement)] <- 0 
+environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
+```
 ```{r}
 environment1$Country <- "all"
 

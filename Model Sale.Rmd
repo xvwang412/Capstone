@@ -38,10 +38,12 @@ names(brandsale)[names(brandsale) == '2018Sales'] <- 'Sales2018'
 favstats(Sales2020 ~ Brand, data = brandsale) %>% 
   knitr::kable(caption = "Summary Statistics for Car Sales by Brand")
 ```
+
 ```{r}
 favstats(Sales2020 ~ Month, data = brandsale) %>% 
   knitr::kable(caption = "Summary Statistics for Car Sales by Month")
 ```
+
 ```{r}
 brandsale <-
   brandsale %>%
@@ -55,6 +57,7 @@ ggplot(brandsale, aes(x = Month, y = Sales2020/1000)) +
   ylab("2020 Car Sales in 1000 Units") +
   scale_x_discrete(limits = month.abb)
 ```
+
 ```{r}
 ggplot(brandsale, aes(x = Month, y = Sales2019/1000)) +
   geom_boxplot() +
