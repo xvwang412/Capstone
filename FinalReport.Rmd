@@ -1,7 +1,7 @@
 ---
 title: "Car Industry during Covid"
 author: 'Jiayue He, Xuefei Wang'
-date: 'February 30, 20XX'
+date: 'November 30, 2021'
 output:
   pdf_document:
     toc: yes
@@ -9,7 +9,6 @@ output:
 ---
 
 ```{r Front Matter, include=FALSE}
-
 # clean up & set default chunk options
 rm(list = ls())
 knitr::opts_chunk$set(echo = FALSE)
@@ -45,11 +44,11 @@ environmental economics.
 
 *What are the overarching research questions that the client is targeting?*
 
-**Question 1: What are some factors associated with environment in car industry?**  
+**Question 1: How did covid affect car market(auto industry)**  
 
-**Question 2:**  
+**Question 2: How did the reaction of cars affect the environment during covid**  
 
-
+**Question 3: **  
 
 
 ## Statistical Questions *(optional)*
@@ -66,8 +65,9 @@ environmental economics.
 
 ```{r variable}
 variables <- read_excel("variables.xlsx")
-kbl(variables) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F)
+variables <- data.frame(variables)
+kable(variables,booktabs = T) %>%
+  kable_styling("striped", latex_options = "HOLD_position", font_size = 7)
 ```
 
 
@@ -84,8 +84,8 @@ environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
 
-#environment1 <- filter(environment1, Manufacturer != model)
-environment1 <- filter(environment1, ï..Manufacturer != model)
+environment1 <- filter(environment1, Manufacturer != model)
+#environment1 <- filter(environment1, ï..Manufacturer != model)
 
 months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01',
             '2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01',
