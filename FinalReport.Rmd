@@ -258,22 +258,3 @@ In this data, a single observation unit represents one of light commercial vehic
 
 
 
-
-
-
-# Additional Considerations
-
-
-
-# Technical Appendix  
-
-*Detailed information and a copy of code and or software results.  Additional graphs and supporting figures may also be placed in the appendix.*
-
-
-### R Script
-```{r ref.label=c('Front Matter', 'variable', 'Data Cleaning', 'timeplot'), echo=TRUE, eval=FALSE}
-# Reprinted code chunks used previously for analysis
-```
-
-
-
