@@ -1,7 +1,7 @@
 ---
 title: "Car Industry during Covid"
-author: 'Jiayue He, Xuefei Wang'
-date: 'February 30, 20XX'
+author: "Jiayue He, Xuefei Wang"
+date: "December 3, 2021"
 output:
   pdf_document:
     toc: yes
@@ -36,43 +36,29 @@ brandsale <- read_excel("TotalSalebyBrand.xlsx")
 \pagebreak
 # Project Description
 
-For this Capstone project, we choose to focus on Economics. Our leader, Jiayue He is in majored of applied statistics and minor in economics. Therefore, in the 
-beginning, we would like to study the affection of producing masks on our environmental economics. However, after doing some researches, we found it was hard for us to combine the affection of producing masks on environment and economy together. Then, we decided to move to some more common topics that also involved economics or 
-environmental economics. 
+For this Capstone project, we choose to focus on Economics. Our leader, Jiayue He majors in applied statistics and minored in economics. Therefore, in the 
+beginning, we would like to study the affection of producing masks on our environmental economics. However, after doing some research, we found it hard for us to combine the impact of producing masks on both the environment and the economy together. Then, we decided to move to some more common topics that also involved environmental economics. Our new issue is based on car performance before and after COVID to do some further research. Due to this being an observational study, we couldn't draw a cause-effect conclusion in this report.
 
+Our datasets are from two websites, one is provided by the U.S. Environment Protection Agency (EPA), and another is from the Automotive industry Portal, MarkLines.
 
 ## Research Questions
 
-*What are the overarching research questions that the client is targeting?*
-
-**Question 1: What are some factors associated with environment in car industry?**  
-
-**Question 2:**  
-
-
-
-
-## Statistical Questions *(optional)*
-
-
-**Question 1:**  
-
-**Question 2:**  
-
-
+**Research Question 1: How much does COVID-19 affect vehicle sales in 2020?**
+**Research Question 2: How does the performance of the automobile industry affect our environment before and after COVID-19?**  
 
 
 ## Variables
 
 ```{r variable}
 variables <- read_excel("variables.xlsx")
-kbl(variables) %>%
-  kable_styling(bootstrap_options = "striped", full_width = F)
+kable(variables,booktabs = T) %>%
+  kable_styling(latex_options = "HOLD_position", font_size = 7)
 ```
 
+To demonstrate the impact of COVID-19, we create one column named "Covid" to indicate whether the model year is during COVID-19.
+Sale is created by adding  sale units for each branch per month.
 
 # Exploratory Data Analysis (EDA)
-
 
 
 ```{r Data Cleaning, include=FALSE}
@@ -99,15 +85,25 @@ sale1 <- filter(sale, DATE %in% months)
 sale1$date <- ymd(months)
 
 ## rename variables to become more appropriate
-names(environment1)[names(environment1) == 'Model.Year'] <- 'Year'
-names(environment1)[names(environment1) == 'ï..Manufacturer'] <- 'Manufacturer'
-names(environment1)[names(environment1) == 'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
-names(environment1)[names(environment1) == 'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
-names(environment1)[names(environment1) == 'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
-names(environment1)[names(environment1) == 'Weight..lbs.'] <- 'Weight'
-names(environment1)[names(environment1) == 'Horsepower..HP.'] <- 'Horsepower'
-names(environment1)[names(environment1) == 'Footprint..sq..ft..'] <- 'Footprint'
-names(environment1)[names(environment1) == 'Fuel.Delivery...Gasoline.Direct.Injection..GDI.'] <- 'Fuel.Delivery.GDI'
+names(environment1)[names(environment1) == 
+                      'Model.Year'] <- 'Year'
+names(environment1)[names(environment1) == 
+                      'ï..Manufacturer'] <- 'Manufacturer'
+names(environment1)[names(environment1) == 
+                      'Real.World.CO2..g.mi.'] <- 'Real.World.CO2'
+names(environment1)[names(environment1) == 
+                      'Real.World.CO2_City..g.mi.'] <- 'Real.World.CO2_City'
+names(environment1)[names(environment1) == 
+                      'Real.World.CO2_Hwy..g.mi.'] <- 'Real.World.CO2_Hwy'
+names(environment1)[names(environment1) == 
+                      'Weight..lbs.'] <- 'Weight'
+names(environment1)[names(environment1) == 
+                      'Horsepower..HP.'] <- 'Horsepower'
+names(environment1)[names(environment1) == 
+                      'Footprint..sq..ft..'] <- 'Footprint'
+names(environment1)[names(environment1) == 
+                      'Fuel.Delivery...Gasoline.Direct.Injection..GDI.'] <- 
+  'Fuel.Delivery.GDI'
  
 ## select variables that can be used 
 environment1 <- 
@@ -139,9 +135,12 @@ environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 
 ## Tesla carbon emission 
 
-environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2018"] <- 400
-environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2019"] <- 420
-environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & environment1$Year == "2020"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
+                              environment1$Year == "2018"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
+                              environment1$Year == "2019"] <- 420
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" & 
+                              environment1$Year == "2020"] <- 400
 
 # The second resource 
 ## change name
@@ -215,63 +214,140 @@ brandfinal <- bind_rows(brandsale1,brandsale2,brandsale3)
 brandfinal <-
   brandfinal %>%
   arrange(Month)
+
+# clean data for the first model
+names(environment)[names(environment) == 'ï..Manufacturer'] <- 'Manufacturer'
+research.data <- environment
+research.data$Country <- "all"
+research.data$Country[research.data$Manufacturer %in% c("Toyota","Mazda","Honda","Subaru","Nissan")] <- "Japan"
+research.data$Country[research.data$Manufacturer %in% c("BMW","Mercedes","VW")] <- "German"
+research.data$Country[research.data$Manufacturer %in% c("GM","Ford","Tesla","FCA")] <- "America"
+research.data$Country[research.data$Manufacturer %in% c("Hyundai","Kia")] <- "Korea"
+
+colnames(research.data)[4] <- "Year"
+colnames(research.data)[9] <- "Real.World.CO2"
+colnames(research.data)[12] <- "Weight"
+colnames(research.data)[13] <- "Footprint"
+colnames(research.data)[15] <- "Horsepower"
+colnames(research.data)[29] <- "Fuel.Delivery.GDI"
+
+research.data <- research.data[c("Real.World.CO2","Country" ,"Year" ,"Weight" ,"Footprint" ,"Horsepower" ,"Fuel.Delivery.GDI", "Engine.Displacement")]
+
+research.data <- research.data %>% drop_na()
+
+clean_data <- research.data[!(research.data$Real.World.CO2=="-" | research.data$Country =="-" | research.data$Year =="-" | research.data$Weight=="-" | research.data$Footprint=="-" | research.data$Horsepower=="-" | research.data$Footprint=="-" | research.data$Engine.Displacement=="-"),] 
+
+clean_data <- transform(clean_data, Real.World.CO2 = as.numeric(Real.World.CO2),Year = as.numeric(Year), Weight = as.numeric(Weight), Footprint = as.numeric(Footprint), Horsepower = as.numeric(Horsepower), Fuel.Delivery.GDI = as.numeric(Fuel.Delivery.GDI), Engine.Displacement = as.numeric(Engine.Displacement))
+
+clean_data$Covid <- as.integer(clean_data$Year == 2020)
 ```
 
-```{r timeplot}
-brandfinal1 <-
-  brandfinal %>%
-  select(total)
-plot.ts(brandfinal1)
+
+```{r barplot, fig.cap= "Car Sale Barplot", fig.width=4, fig.height=4}
+gbs <- aggregate(brandsale[,2:4], list(brandsale$Month), FUN=sum)
+mx <- t(as.matrix(gbs[-1]))
+colors <- c("lightblue", "lightgreen", "lightpink")
+
+barplot(mx,main='Sales By Month', names = c(1:12), ylab='Sales', xlab='Month',border=F, beside = TRUE, col=colors, ylim=c(0,max(mx)*1.3))
+# add a legend
+box()
+legend('topright',fill=colors,legend=c('2020Sales','2019Sales', '2018Sales'))
 ```
+
+From the barplot below, we can find how COVID-19 affected vehicle sales. From the bars of 2018 and 2019, we can see that there is not much difference of sales in each month. Without COVID-19, the year of 2020 has a similar sale trend. In fact, however, sales in 2020 illustrated å sharp change in some months, especially from March to June, which was the worst period caused by COVID-19. After June, the sales of 2020 started to recover and have been par on with data of 2018 and 2019 during the second half of the year.
+
+```{r correlation, fig.cap= "Correlation Plot", fig.width=4, fig.height=4}
+# check Collinearity
+model_corr_matrix <- cor(clean_data %>% 
+                            select(Weight, Footprint, Horsepower, Fuel.Delivery.GDI, Engine.Displacement),
+                          use = "pairwise.complete.obs")
+
+corrplot::corrplot(model_corr_matrix)
+```
+
+
+Collinearity happens when two or more explanatory variables are correlated with each other. An extreme situation called multicollinearity, where collinearity exists between three or more variables even if no pair of variables has a particularly high correlation. This means that there is redundancy between explanatory variables. We can see from this figure that four variables *Weight*, *Footprint*, *Horsepower*, *Engine.Displacement* show high relativity. Therefore, we decide to remove three of them and perserve *Weight* as one independent variable. Then we can retrain the linear regression model using *Country*, *Covid*, *Weight* and *Fuel.Delivery.GDI* as final explanatory variables.
 
 # Statistical Analysis 
+## Research Question 1
 
+Based on Figure 1, there is a big gap that happened in March 2020 and April 2020. With the effect of COVID-19, sales of May and June are also lower than the year before. The percentage of decreasing in March 2020 is 38.43% compared with March 2019. The decrease percentage for April 2020 is 46.62%. The percentage of May and June are around 30%. After that, the gap becomes small, then back to normal.
 
+## Research Question 2
+To check how the performance of the automobile industry affected our environment before and after COVID-19, we filtered out the related data including features like CO2, year, Footprint and others. We can omit the rows with missing values in some features, and thus obtain a clean dataset. 
+
+After data preprocessing, we fit a linear regression model using the mentioned variables and set the *Real.World.CO2* emission as the response variable. At first, we select *Country*, *Covid*, *Weight*, *Footprint*, *Horsepower*, *Fuel.Delivery.GDI*, *Engine.Displacement* as explanatory variables. Then we check the regression assumptions like linearity of the data, normality of residuals, homogeneity of residuals variance and independence of residuals error terms. They appear in the Appendix.
+
+```{r model1}
+# linear regression with Covid 
+fit.lm1 <- lm(Real.World.CO2 ~ Country + Covid + Weight + Footprint + Horsepower + Fuel.Delivery.GDI + Engine.Displacement, data = clean_data)
+
+```
+
+| Variables         | Coefficients  | P-values | Is it significant|
+| ----------------- |:-------------:| --------:|:----------------:|
+| (Intercept)       |209.764038     | 1.15e-08 | Yes              |
+| CountryAmerica    | 25.171417     | 0.000243 | Yes              |
+| CountryGerman     | 24.130255     | 0.000163 | Yes              |
+| CountryJapan      |-20.820965     | 0.001405 | Yes              |
+| CountryKorea      | -3.120265     | 0.702391 | No               |
+| Covid             |-11.051030     | 0.050606 | Yes              |
+| Weight            |  0.045397     | 3.08e-07 | Yes              |
+| Fuel.Delivery.GDI |-61.465645     |  < 2e-16 | Yes              |
+
+From the linear regression result, we can find that the p-value of variable "Covid", around 0.05, is a relatively significant value and means that "Covid" has a greater impact on the environment. Hence we can draw our conclusion: the performance of the automobile industry will affect our environment before and after COVID. The linear model is: 
+
+Real.World.CO2 = 209.764038 + CountryAmerica * 25.171417 + CountryGerman * 24.130255 + CountryJapan * -20.820965 + CountryKorea * -3.120265 + Covid * -11.051030 + Weight * 0.045397 + Fuel.Delivery.GDI * -61.465645 
 
 # Recommendations 
 
-
-
-**Question 1:**  
-
-**Question 2:**  
-
-
-
-
+Our main research question is:  How does the performance of the automobile industry affect our environment before and after COVID-19? To study this question, we plan to build a linear regression model to check how significant the variable of COVID-19 is on the environment. We first filter out the related data including features like CO2, year, Footprint and others. We can omit the rows with missing values in some features, and thus obtain a clean dataset. To exactly demonstrate the COVID, we create one column named "Covid" to indicate whether the model year is during COVID.
 
 
 # Resources 
 
 Source 1: https://www.epa.gov/automotive-trends/explore-automotive-trends-data#DetailedData
 
-The first source we used is provided by the U.S. Environment Protection Agency’s (EPA). EPA has collected data on every new light-duty vehicle model sold in the United States since 1975, either from testing performed by EPA at the National Vehicle Fuel and Emissions Laboratory in Ann Arbor, Michigan, or directly from manufacturers using official EPA test procedures. These data are collected to support several important national programs, including EPA criteria pollutant and GHG standards, the U.S. Department of Transportation’s National Highway Traffic Safety Administration (NHTSA) Corporate Average Fuel Economy (CAFE) standards, and vehicle Fuel Economy and Environment labels. Thus, this expansive data set allows EPA to provide a uniquely comprehensive analysis of the automotive industry over the last 45 years.
+The first source we used is provided by the U.S. Environment Protection Agency (EPA). EPA has collected data on every new light-duty vehicle model sold in the United States since 1975, either from testing performed by EPA at the National Vehicle Fuel and Emissions Laboratory in Ann Arbor, Michigan, or directly from manufacturers using official EPA test procedures. These data are collected to support several important national programs, including EPA criteria pollutants and GHG standards, the U.S. Department of Transportation’s National Highway Traffic Safety Administration (NHTSA) Corporate Average Fuel Economy (CAFE) standards, and vehicle Fuel Economy and Environment labels. Thus, this expansive data set allows EPA to provide a uniquely comprehensive analysis of the automobile industry over the last 45 years.
+
 
 Source 2: https://www.marklines.com/en/statistics/flash_sales/automotive-sales-in-usa-by-month-2020
 
-The second data source is from Automotive industry Portal, MarkLines.
-This data source contains every month sale in 2020. In addition, there is a column that shows the sales in the same month but in 2019. 
-
-MarkLine is intend to develop and grow the automotive industry by providing information services. This specific dataset was collected every month in 2020 and finished collecting in January 6th, 2021.  All of this information is collected through purchases from third-party sources, as well as partnerships with other companies. We found this dataset on their company's official website. 
-
-In this data, a single observation unit represents one of light commercial vehicles, such as Toyota, Ford, and Honda etc. There are 12 tables that represent each month sales. Every brand of vehicles and its sales form a row. It contains 23 brands of vehicles, so it has 23 rows. Of course, we need to find a way to combine these 12 tables in our project. Therefore, the final information about our data is still in process.
+The second data source is from the Automotive Industry Portal, MarkLines. This data source contains each monthly sale in 2020. In addition, we also used extract the information for 2018 and 2019 from this website. MarkLine is intend to develop and grow the automotive industry by providing information services. This specific dataset was collected every month in 2020 and stop on January 6th, 2021. All of this information is collected through purchases from third-party sources, as well as partnerships with other companies. We found this dataset on their company's official website. 
 
 
+Professor name: Sherry Wu
 
+Contact information:
 
+510 Kern Building
+
+University Park, PA 16802
+
+Email: sqw5740@psu.edu
+
+Phone: (814) 865-4921
+
+Introduction:
+
+Sherry Wu is a visiting assistant professor at Penn State University in the department of Economics. She is particularly interested in industrial organization. Dr.Wu is also the professor in the environmental economics class. Since our research goal is to analyze the impact of the automotive industry on economy and environment, we think Dr.Wu will be very helpful in giving advice for our project.
 
 
 # Additional Considerations
 
 
-
 # Technical Appendix  
 
-*Detailed information and a copy of code and or software results.  Additional graphs and supporting figures may also be placed in the appendix.*
+```{r assumptions}
+par(mfrow = c(2, 2))
+plot(fit.lm1)
+```
+
+We drew Residual vs. Fitted plots and Normal Q_Q plots to check assumptions. First of all, the residual vs. fitted plots show that the Linearity is met for all six models since those dots are randomly spaced around the line of residual(red line) that is 0. Secondly, the Independent assumption is met since every child is an individual observation unit. Then, from the Normal Q_Q plots, we observed that most of the dots are along the dashed line. We can state that the normality is met. Last but not least, according to residual vs. fitted plots, equal variance is also met. Distances between each dot seem to be the same.
 
 
 ### R Script
-```{r ref.label=c('Front Matter', 'variable', 'Data Cleaning', 'timeplot'), echo=TRUE, eval=FALSE}
+```{r ref.label=c('Front Matter', 'variable', 'Data Cleaning', 'barplot', 'correlation','model1','assumptions'), echo=TRUE, eval=FALSE}
 # Reprinted code chunks used previously for analysis
 ```
 
