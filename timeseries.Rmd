@@ -140,7 +140,7 @@ summary(mymodel)
 ```
 
 ```{r}
-sarima(brandfinal2, 1,1,0)
+fit = sarima(brandfinal2, 1,1,0)
 
 ```
 
