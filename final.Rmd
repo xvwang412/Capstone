@@ -70,8 +70,8 @@ environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
 
-#environment1 <- filter(environment1, Manufacturer != model)
-environment1 <- filter(environment1, ï..Manufacturer != model)
+environment1 <- filter(environment1, Manufacturer != model)
+#environment1 <- filter(environment1, ï..Manufacturer != model)
 
 months <- c('2018-01-01','2018-02-01','2018-03-01','2018-04-01','2018-05-01',
             '2018-06-01','2018-07-01','2018-08-01','2018-09-01','2018-10-01',
