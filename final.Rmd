@@ -7,7 +7,7 @@ output:
     toc: yes
     toc_depth: '2'
 ---
-xufei  xuefei
+
 ```{r Front Matter, include=FALSE}
 
 # clean up & set default chunk options
@@ -47,7 +47,14 @@ Our datasets are from two websites, one is provided by the U.S. Environment Prot
 ## Research Questions
 
 **Research Question 1: How does the performance of the automobile industry affect our environment before and after COVID-19?**
-**Research Question 2: How much does COVID-19 affect vehicle sales in 2020?**
+
+**Research Question 2: How does car sales affect the environment? **
+
+## Statistical Questions
+
+**Statistical Question 1: Is there a relationship between the concentration of carbon dioxide and car weights, footprint, horsepower, fuel delivery, engine displacement?**
+
+**Statistical Question 2: Is there a relationship between car sales and the concentration of carbon dioxide? **
 
 ## Variables
 
@@ -298,23 +305,29 @@ names(brandsale)[names(brandsale) == 'Brand'] <- 'Manufacturer'
 ```{r}
 brandsale_test <-
   brandsale %>%
-  select(Manufacturer, Sale2020, Sale2019, Sale2018)
+  select(Manufacturer, Sale2020, Sale2019, Sale2018,Sale2017,Sale2016,Sale2015)
 
 names(brandsale_test)[names(brandsale_test) == 'Sale2020'] <- 'Year2020'
 names(brandsale_test)[names(brandsale_test) == 'Sale2019'] <- 'Year2019'
 names(brandsale_test)[names(brandsale_test) == 'Sale2018'] <- 'Year2018'
+names(brandsale_test)[names(brandsale_test) == 'Sale2017'] <- 'Year2017'
+names(brandsale_test)[names(brandsale_test) == 'Sale2016'] <- 'Year2016'
+names(brandsale_test)[names(brandsale_test) == 'Sale2015'] <- 'Year2015'
 ```
 
 ```{r}
 brandsale_test <-
   brandsale_test %>%
-  gather(key = "Year", value = "production", 2:4)
+  gather(key = "Year", value = "production", 2:7)
 ```
 
 ```{r}
 brandsale_test$Year[brandsale_test$Year == "Year2020"] <- '2020'
 brandsale_test$Year[brandsale_test$Year == "Year2019"] <- '2019'
 brandsale_test$Year[brandsale_test$Year == "Year2018"] <- '2018'
+brandsale_test$Year[brandsale_test$Year == "Year2017"] <- '2017'
+brandsale_test$Year[brandsale_test$Year == "Year2016"] <- '2016'
+brandsale_test$Year[brandsale_test$Year == "Year2015"] <- '2015'
 
 brandsale_test$Year <- as.factor(brandsale_test$Year)
 ```
@@ -345,15 +358,33 @@ result$Country[result$Manufacturer %in% c("GM","Ford","Tesla","FCA")] <- "Americ
 result$Country[result$Manufacturer %in% c("Hyundai","Kia")] <- "Korea"
 ```
 
+```{r}
+result$Year <- as.integer(result$Year)
+result$year2015 <- result$Year - 1
+```
 
 ```{r}
-fit.lm2 <- lm(Real.World.CO2 ~ Country + Year + production + Weight + Footprint + Horsepower + Fuel.Delivery.GDI + Engine.Displacement, data = result)
+result$production <- result$production / 100000
+```
 
+
+```{r}
+fit.lm2 <- lm(Real.World.CO2 ~ Country + year2015 + production + Weight + Footprint + Horsepower + Fuel.Delivery.GDI + Engine.Displacement, data = result)
 summary(fit.lm2)
 ```
 
 ```{r}
 VIF(fit.lm2)
+```
+
+
+```{r}
+fit.lm2_reduced <- lm(Real.World.CO2 ~ production, data = result)
+summary(fit.lm2_reduced)
+```
+
+```{r}
+anova(fit.lm2_reduced, fit.lm2, test = "F")
 ```
 
 
