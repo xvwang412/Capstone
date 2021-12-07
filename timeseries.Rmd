@@ -1,0 +1,170 @@
+---
+title: "timeseries"
+author: "Xuefei Wang"
+date: "12/1/2021"
+output: html_document
+---
+
+```{r load, warning = FALSE, include=FALSE}
+ 
+# clean up & set default chunk options
+rm(list = ls())
+knitr::opts_chunk$set(echo = FALSE)
+
+# load packages
+library(readxl)
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+library(mosaic)
+library(lubridate)
+library(data.table)
+library(plotly)
+library(dygraphs)
+library(corrplot)
+library(astsa)
+library(forecast)
+library(sarima)
+
+# inputs
+environment <- read.csv("environment.csv")
+sale <- read.csv("TOTALSA.csv")
+brandsale <- read_excel("TotalSalebyBrand.xlsx")
+```
+
+```{r}
+names(brandsale)[2] <- "Sale2020"
+names(brandsale)[3] <- "Sale2019"
+names(brandsale)[4] <- "Sale2018"
+
+brandsale1 <-
+  brandsale %>%
+  select(Sale2020, Month) %>%
+  group_by(Month)%>%
+  summarise(total = sum(Sale2020))
+
+brandsale2 <-
+  brandsale %>%
+  select(Sale2019, Month) %>%
+  group_by(Month)%>%
+  summarise(total = sum(Sale2019))
+
+brandsale3 <-
+  brandsale %>%
+  select(Sale2018, Month) %>%
+  group_by(Month)%>%
+  summarise(total = sum(Sale2018))
+
+brandsale1$Month[brandsale1$Month == '1'] <- '2020-01'
+brandsale1$Month[brandsale1$Month == '2'] <- '2020-02'
+brandsale1$Month[brandsale1$Month == '3'] <- '2020-03'
+brandsale1$Month[brandsale1$Month == '4'] <- '2020-04'
+brandsale1$Month[brandsale1$Month == '5'] <- '2020-05'
+brandsale1$Month[brandsale1$Month == '6'] <- '2020-06'
+brandsale1$Month[brandsale1$Month == '7'] <- '2020-07'
+brandsale1$Month[brandsale1$Month == '8'] <- '2020-08'
+brandsale1$Month[brandsale1$Month == '9'] <- '2020-09'
+brandsale1$Month[brandsale1$Month == '10'] <- '2020-10'
+brandsale1$Month[brandsale1$Month == '11'] <- '2020-11'
+brandsale1$Month[brandsale1$Month == '12'] <- '2020-12'
+
+brandsale2$Month[brandsale2$Month == '1'] <- '2019-01'
+brandsale2$Month[brandsale2$Month == '2'] <- '2019-02'
+brandsale2$Month[brandsale2$Month == '3'] <- '2019-03'
+brandsale2$Month[brandsale2$Month == '4'] <- '2019-04'
+brandsale2$Month[brandsale2$Month == '5'] <- '2019-05'
+brandsale2$Month[brandsale2$Month == '6'] <- '2019-06'
+brandsale2$Month[brandsale2$Month == '7'] <- '2019-07'
+brandsale2$Month[brandsale2$Month == '8'] <- '2019-08'
+brandsale2$Month[brandsale2$Month == '9'] <- '2019-09'
+brandsale2$Month[brandsale2$Month == '10'] <- '2019-10'
+brandsale2$Month[brandsale2$Month == '11'] <- '2019-11'
+brandsale2$Month[brandsale2$Month == '12'] <- '2019-12'
+
+brandsale3$Month[brandsale3$Month == '1'] <- '2018-01'
+brandsale3$Month[brandsale3$Month == '2'] <- '2018-02'
+brandsale3$Month[brandsale3$Month == '3'] <- '2018-03'
+brandsale3$Month[brandsale3$Month == '4'] <- '2018-04'
+brandsale3$Month[brandsale3$Month == '5'] <- '2018-05'
+brandsale3$Month[brandsale3$Month == '6'] <- '2018-06'
+brandsale3$Month[brandsale3$Month == '7'] <- '2018-07'
+brandsale3$Month[brandsale3$Month == '8'] <- '2018-08'
+brandsale3$Month[brandsale3$Month == '9'] <- '2018-09'
+brandsale3$Month[brandsale3$Month == '10'] <- '2018-10'
+brandsale3$Month[brandsale3$Month == '11'] <- '2018-11'
+brandsale3$Month[brandsale3$Month == '12'] <- '2018-12'
+
+brandfinal <- bind_rows(brandsale1,brandsale2,brandsale3)
+
+brandfinal <-
+  brandfinal %>%
+  arrange(Month)
+```
+
+
+
+
+```{r}
+brandfinal1 <-
+  brandfinal %>%
+  select(total)
+plot.ts(brandfinal1)
+
+```
+
+
+
+
+```{r}
+brandfinal2 <- ts(brandfinal1, frequency=12, start=c(2018,1))
+
+
+diff12 = diff(brandfinal2, 12)
+
+
+acf(diff12,24)
+pacf(diff12,24)
+
+
+```
+
+
+```{r}
+acf2(diff12)
+```
+
+
+```{r}
+mymodel <- auto.arima(brandfinal2, D = 1)
+summary(mymodel)
+```
+
+```{r}
+fit = sarima(brandfinal2, 1,1,0)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
