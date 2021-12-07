@@ -31,6 +31,9 @@ library(kableExtra)
 environment <- read.csv("environment.csv")
 sale <- read.csv("TOTALSA.csv")
 brandsale <- read_excel("TotalSalebyBrand.xlsx")
+Sale2015 <- read_excel("Sale2015.xlsx")
+Sale2016 <- read_excel("Sale2016.xlsx")
+Sale2017 <- read_excel("Sale2017.xlsx")
 ```
 
 \pagebreak
@@ -43,9 +46,8 @@ Our datasets are from two websites, one is provided by the U.S. Environment Prot
 
 ## Research Questions
 
-**Research Question 1: How much does COVID-19 affect vehicle sales in 2020?**
-**Research Question 2: How does the performance of the automobile industry affect our environment before and after COVID-19?**  
-
+**Research Question 1: How does the performance of the automobile industry affect our environment before and after COVID-19?**
+**Research Question 2: How much does COVID-19 affect vehicle sales in 2020?**
 
 ## Variables
 
@@ -60,12 +62,19 @@ Sale is created by adding  sale units for each branch per month.
 
 # Exploratory Data Analysis (EDA)
 
+```{r}
+brandsale <- brandsale %>% filter(Brand != "Others")
+brandsale_add <- merge(Sale2015, Sale2016, by = c("Brand","Month"))
+brandsale_add <- merge(brandsale_add, Sale2017, by = c("Brand","Month"))
+brandsale <- merge(brandsale_add, brandsale, by = c("Brand","Month"))
+```
+
 
 ```{r Data Cleaning, include=FALSE}
 
 # The first resource cleaning
 ## selections 
-year <- c('2018','2019','2020')
+year <- c('2015','2016','2017','2018','2019','2020')
 environment1 <- filter(environment, Model.Year %in% year)
 
 model <- c('All')
@@ -136,6 +145,12 @@ environment1$Engine.Displacement <- as.numeric(environment1$Engine.Displacement)
 ## Tesla carbon emission 
 
 environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
+                              environment1$Year == "2015"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
+                              environment1$Year == "2016"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
+                              environment1$Year == "2017"] <- 400
+environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
                               environment1$Year == "2018"] <- 400
 environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
                               environment1$Year == "2019"] <- 420
@@ -144,9 +159,12 @@ environment1$Real.World.CO2[environment1$Manufacturer == "Tesla" &
 
 # The second resource 
 ## change name
-names(brandsale)[2] <- "Sale2020"
-names(brandsale)[3] <- "Sale2019"
-names(brandsale)[4] <- "Sale2018"
+names(brandsale)[3] <- "Sale2015"
+names(brandsale)[4] <- "Sale2016"
+names(brandsale)[5] <- "Sale2017"
+names(brandsale)[6] <- "Sale2018"
+names(brandsale)[7] <- "Sale2019"
+names(brandsale)[8] <- "Sale2020"
 
 ## calculate the total for each year
 brandsale1 <-
@@ -244,14 +262,14 @@ clean_data$Covid <- as.integer(clean_data$Year == 2020)
 
 
 ```{r barplot, fig.cap= "Car Sale Barplot", fig.width=4, fig.height=4}
-gbs <- aggregate(brandsale[,2:4], list(brandsale$Month), FUN=sum)
+gbs <- aggregate(brandsale[,3:8], list(brandsale$Month), FUN=sum)
 mx <- t(as.matrix(gbs[-1]))
-colors <- c("lightblue", "lightgreen", "lightpink")
+colors <- c("lightblue", "lightgreen", "lightpink", "grey", "lightyellow", "purple")
 
 barplot(mx,main='Sales By Month', names = c(1:12), ylab='Sales', xlab='Month',border=F, beside = TRUE, col=colors, ylim=c(0,max(mx)*1.3))
 # add a legend
 box()
-legend('topright',fill=colors,legend=c('2020Sales','2019Sales', '2018Sales'))
+legend('topright',fill=colors,legend=c('2015Sales','2016Sales', '2017Sales','2018Sales','2019Sales','2020Sales'))
 ```
 
 From the barplot below, we can find how COVID-19 affected vehicle sales. From the bars of 2018 and 2019, we can see that there is not much difference of sales in each month. Without COVID-19, the year of 2020 has a similar sale trend. In fact, however, sales in 2020 illustrated å sharp change in some months, especially from March to June, which was the worst period caused by COVID-19. After June, the sales of 2020 started to recover and have been par on with data of 2018 and 2019 during the second half of the year.
@@ -272,6 +290,72 @@ Collinearity happens when two or more explanatory variables are correlated with 
 ## Research Question 1
 
 Based on Figure 1, there is a big gap that happened in March 2020 and April 2020. With the effect of COVID-19, sales of May and June are also lower than the year before. The percentage of decreasing in March 2020 is 38.43% compared with March 2019. The decrease percentage for April 2020 is 46.62%. The percentage of May and June are around 30%. After that, the gap becomes small, then back to normal.
+
+```{r}
+names(brandsale)[names(brandsale) == 'Brand'] <- 'Manufacturer'
+```
+
+```{r}
+brandsale_test <-
+  brandsale %>%
+  select(Manufacturer, Sale2020, Sale2019, Sale2018)
+
+names(brandsale_test)[names(brandsale_test) == 'Sale2020'] <- 'Year2020'
+names(brandsale_test)[names(brandsale_test) == 'Sale2019'] <- 'Year2019'
+names(brandsale_test)[names(brandsale_test) == 'Sale2018'] <- 'Year2018'
+```
+
+```{r}
+brandsale_test <-
+  brandsale_test %>%
+  gather(key = "Year", value = "production", 2:4)
+```
+
+```{r}
+brandsale_test$Year[brandsale_test$Year == "Year2020"] <- '2020'
+brandsale_test$Year[brandsale_test$Year == "Year2019"] <- '2019'
+brandsale_test$Year[brandsale_test$Year == "Year2018"] <- '2018'
+
+brandsale_test$Year <- as.factor(brandsale_test$Year)
+```
+
+```{r}
+brandsale_test1 <-
+  brandsale_test %>%
+  group_by(Manufacturer, Year) %>%
+  summarise(production = sum(production))
+```
+
+```{r}
+environment2 <-
+  environment1 %>%
+  group_by(Year,Manufacturer) %>%
+  arrange(Year)
+```
+
+```{r}
+result <- left_join(environment1, brandsale_test1, by = c('Manufacturer', 'Year'))
+```
+
+```{r}
+result$Country <- "all"
+result$Country[result$Manufacturer %in% c("Toyota","Mazda","Honda","Subaru","Nissan")] <- "Japan"
+result$Country[result$Manufacturer %in% c("BMW","Mercedes","VW")] <- "German"
+result$Country[result$Manufacturer %in% c("GM","Ford","Tesla","FCA")] <- "America"
+result$Country[result$Manufacturer %in% c("Hyundai","Kia")] <- "Korea"
+```
+
+
+```{r}
+fit.lm2 <- lm(Real.World.CO2 ~ Country + Year + production + Weight + Footprint + Horsepower + Fuel.Delivery.GDI + Engine.Displacement, data = result)
+
+summary(fit.lm2)
+```
+
+```{r}
+VIF(fit.lm2)
+```
+
 
 ## Research Question 2
 To check how the performance of the automobile industry affected our environment before and after COVID-19, we filtered out the related data including features like CO2, year, Footprint and others. We can omit the rows with missing values in some features, and thus obtain a clean dataset. 
